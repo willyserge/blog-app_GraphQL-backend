@@ -1,27 +1,33 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { UserInputError } from 'apollo-server'
+import { UserInputError, addErrorLoggingToSchema } from "apollo-server";
 import User from "../../models/user";
-import { JWT_SECRET } from "../../../config";
 import Validate from "../../helpers/validator";
+import generateToken from "../../helpers/generateToken";
 
 const usersResolver = {
   Mutation: {
     async register(
       _,
-      { registerInput: { name, email, password, confirmPassword } },
+      { registerInput: { name, email, password, confirmPassword } }
     ) {
-      const { error } = Validate.register({name,email,password,confirmPassword});
+      const { error } = Validate.register({
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
       if (error) {
-          throw new UserInputError('Errors',{errors:error.message.replace(/"/g, '')})
+        throw new UserInputError("Errors", {
+          errors: error.message.replace(/"/g, ""),
+        });
       }
-      const user = await User.findOne({email});
+      const user = await User.findOne({ email });
       if (user) {
-          throw new UserInputError('email is taken',{
-              errors:{
-                  email:'email is taken'
-              }
-          })
+        throw new UserInputError("email is taken", {
+          errors: {
+            email: "email is taken",
+          },
+        });
       }
       password = await bcrypt.hash(password, 12);
       const newUser = new User({
@@ -31,19 +37,38 @@ const usersResolver = {
         createdAt: new Date().toISOString(),
       });
       const res = await newUser.save();
-      const token = jwt.sign(
-        {
-          id: res.id,
-          name: res.name,
-          email: res.email,
-        },
-        JWT_SECRET,
-        { expiresIn: "24h" }
-      );
+      const token = generateToken();
 
       return {
         ...res._doc,
         id: res._id,
+        token,
+      };
+    },
+
+    async login(_, { email, password }) {
+      const { error } = Validate.login({ email, password });
+      if (error) {
+        throw new UserInputError("Errors", {
+          errors: error.message.replace(/"/g, ""),
+        });
+      }
+      const user = await User.findOne({ email });
+      if (!user) {
+        throw new UserInputError("Errors", {
+          errors: "Wrong email or password",
+        });
+      }
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        throw new UserInputError("Errors", {
+          errors: "Wrong email or password",
+        });
+      }
+      const token = generateToken(user);
+      return {
+        ...user._doc,
+        id: user._id,
         token,
       };
     },
