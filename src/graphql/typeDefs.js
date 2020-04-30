@@ -14,8 +14,15 @@ const typeDefs = gql`
     password: String!
     confirmPassword: String!
   }
+  type Post {
+      id:ID!
+      body:String!
+      createdAt:String!
+      name:String!
+  }
+
   type Query {
-    _: String
+    getPosts: [Post]
   }
 
   type Mutation {
