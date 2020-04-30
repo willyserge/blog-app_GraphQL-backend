@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { UserInputError } from 'apollo-server'
 import User from "../../models/user";
 import { JWT_SECRET } from "../../../config";
 
@@ -8,9 +9,15 @@ const usersResolver = {
     async register(
       _,
       { registerInput: { name, email, password, confirmPassword } },
-      context,
-      info
     ) {
+      const user = await User.findOne({email});
+      if (user) {
+          throw new UserInputError('email is taken',{
+              errors:{
+                  email:'email is taken'
+              }
+          })
+      }
       password = await bcrypt.hash(password, 12);
       const newUser = new User({
         name,
