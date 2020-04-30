@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 const postSchema = new Schema({
   body: String,
-  username: String,
+  name: String,
   createdAt: String,
   comments: [
     {
