@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { UserInputError } from 'apollo-server'
 import User from "../../models/user";
 import { JWT_SECRET } from "../../../config";
+import Validate from "../../helpers/validator";
 
 const usersResolver = {
   Mutation: {
@@ -10,6 +11,10 @@ const usersResolver = {
       _,
       { registerInput: { name, email, password, confirmPassword } },
     ) {
+      const { error } = Validate.register({name,email,password,confirmPassword});
+      if (error) {
+          throw new UserInputError('Errors',{errors:error.message.replace(/"/g, '')})
+      }
       const user = await User.findOne({email});
       if (user) {
           throw new UserInputError('email is taken',{
