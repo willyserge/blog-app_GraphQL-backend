@@ -11,5 +11,13 @@ const postsResolver = {
       }
     },
   },
+  async getPost(_, { postId }) {
+    try {
+      const post = await Post.findById(postId);
+      return post;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
 };
 export default postsResolver;
