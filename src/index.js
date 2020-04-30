@@ -1,19 +1,8 @@
 import { ApolloServer } from 'apollo-server';
-import gql from 'graphql-tag';
 import mongoose from 'mongoose'
-import { MONGODB } from './config';
-
-const typeDefs = gql`
-  type Query{
-      test:String!
-  }
-
-`
-const resolvers = {
-    Query:{
-        test:()=>'testing graphql'
-    }
-}
+import { MONGODB } from '../config';
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
 
 const server = new ApolloServer({
     typeDefs,
