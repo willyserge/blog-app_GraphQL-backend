@@ -1,5 +1,6 @@
 import Post from "../../models/post";
 import checkAuth from "../../middleware/auth";
+import { AuthenticationError } from "apollo-server";
 
 const postsResolver = {
   Query: {
@@ -31,6 +32,21 @@ const postsResolver = {
       });
       const post = await newPost.save();
       return post;
+    },
+    async deletePost(_, { postId }, context) {
+      const user = checkAuth(context);
+      console.log(user);
+      try {
+        const post = await Post.findById(postId);
+        if (user.id == post.user) {
+          await post.delete();
+          return "post deleted successfully";
+        } else {
+          throw new AuthenticationError("action not allowed");
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
     },
   },
 };
