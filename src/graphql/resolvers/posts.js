@@ -48,6 +48,25 @@ const postsResolver = {
         throw new Error(error);
       }
     },
+    async likePost(_, { postId }, context) {
+      const { name } = checkAuth(context);
+      console.log(name);
+      const post = await Post.findById(postId);
+      if (post) {
+        if (post.likes.find((like) => like.name === name)) {
+          post.likes = post.likes.filter((like) => like.name !== name);
+        } else {
+          post.likes.push({
+            name,
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        await post.save();
+        return post;
+      } else throw new UserInputError("Post not found");
+    },
   },
 };
+
 export default postsResolver;
