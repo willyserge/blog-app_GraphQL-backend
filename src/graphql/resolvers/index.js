@@ -1,5 +1,6 @@
 import usersResolver from "./users";
 import postsResolver from "./posts";
+import commentsResolver from "./comments";
 
 const resolvers = {
   Query: {
@@ -8,6 +9,7 @@ const resolvers = {
   Mutation: {
     ...usersResolver.Mutation,
     ...postsResolver.Mutation,
+    ...commentsResolver.Mutation,
   },
 };
 export default resolvers;
