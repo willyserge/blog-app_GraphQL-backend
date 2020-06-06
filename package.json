@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
-    "apollo-server": "^2.12.0",
+    "apollo-server": "^2.14.2",
     "bcryptjs": "^2.4.3",
     "esm": "^3.2.25",
     "graphql": "^15.0.0",
